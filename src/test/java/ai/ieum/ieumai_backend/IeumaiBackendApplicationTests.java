@@ -1,4 +1,4 @@
-package com.example.ieumai_backend;
+package ai.ieum.ieumai_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
