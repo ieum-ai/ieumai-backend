@@ -56,7 +56,7 @@ public class AuthService {
             updateIpLimit(ip);
         } catch (Exception e) {
             pinRepository.delete(verificationPin);
-            log.error("이메일 발송 실패: {}", e.getMessage());  // 중괄호와 getMessage()를 사용
+            log.error("이메일 발송 실패: {}", e.getMessage());
             throw new EmailSendException("이메일 발송에 실패했습니다.");
         }
     }
@@ -72,7 +72,7 @@ public class AuthService {
         }
 
         if (!verification.getPin().equals(pin)) {
-            verification.incrementAttempts();  // setAttempts() 대신 incrementAttempts() 사용
+            verification.incrementAttempts();
             pinRepository.save(verification);
 
             int remainingAttempts = verification.getRemainingAttempts();

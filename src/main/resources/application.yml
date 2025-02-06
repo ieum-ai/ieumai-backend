@@ -10,13 +10,13 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect  # 최신 MySQL Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         types:
           print:
             banner: false
         jdbc:
-          time_zone: Asia/Seoul  # 타임존 설정
+          time_zone: Asia/Seoul
     show-sql: true
   sql:
     init:

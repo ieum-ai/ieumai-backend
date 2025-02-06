@@ -1,6 +1,7 @@
 package ai.ieum.ieumai_backend.repository;
 
 import ai.ieum.ieumai_backend.domain.Voice;
+import ai.ieum.ieumai_backend.domain.enums.Source;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

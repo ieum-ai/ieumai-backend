@@ -18,20 +18,7 @@ import java.util.List;
 public class ScriptController {
     private final ScriptService scriptService;
 
-    // 기본 스크립트 생성
-    @GetMapping
-    public ResponseEntity<ScriptApiResponse> getScriptApiResponse() {
-        try {
-            String response = scriptService.getScriptApiResponse();
-            return ResponseEntity.ok(ScriptApiResponse.success(response));
-        } catch (Exception e) {
-            log.error("스크립트 생성 실패: ", e);
-            return ResponseEntity.internalServerError()
-                    .body(ScriptApiResponse.error("스크립트 생성 실패: " + e.getMessage()));
-        }
-    }
-
-    // 커스텀 프롬프트로 스크립트 생성
+    // 스크립트 생성
     @PostMapping
     public ResponseEntity<ScriptApiResponse> generateCustomScript(@RequestBody ScriptApiRequest request) {
         try {
