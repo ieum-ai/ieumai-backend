@@ -10,4 +10,7 @@ import java.util.List;
 public interface VoiceRepository extends JpaRepository<Voice, Long> {
     List<Voice> findByUserId(Long userId);
     List<Voice> findByScriptId(Long scriptId);
+    List<Voice> findByUserIdAndSource(Long userId, Source source);
+    List<Voice> findByScriptIdAndSource(Long scriptId, Source source);
+    Long countByUserIdAndSource(Long userId, Source source);
 }

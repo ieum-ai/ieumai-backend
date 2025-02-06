@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "scripts")
@@ -34,6 +35,9 @@ public class Script {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "script")
+    private List<Voice> voices;
 
     @PrePersist
     protected void onCreate() {

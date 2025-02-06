@@ -20,7 +20,7 @@ public class VoiceController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("scriptId") Long scriptId,
             @RequestParam("source") Source source,
-            @RequestAttribute("userId") Long userId  // JWT 토큰에서 추출
+            @RequestAttribute("userId") Long userId
     ) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body(new CommonResponse("음성 파일이 없습니다."));

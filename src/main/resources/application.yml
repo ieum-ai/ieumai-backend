@@ -30,13 +30,19 @@ aws:
   ses:
     from: ${SES_FROM_EMAIL}
 
+cloud:
+  aws:
+    credentials:
+      access-key: YOUR_ACCESS_KEY
+      secret-key: YOUR_SECRET_KEY
+    s3:
+      bucket: your-bucket-name
+    region:
+      static: ap-northeast-2
+
 jwt:
   secret: your-256-bit-secret-key-here-must-be-at-least-32-characters
   token-validity-in-seconds: 86400
-
-file:
-  upload:
-    path: /path/to/your/upload/directory
 
 
 

@@ -20,11 +20,13 @@ public class Voice {
     @Column(name = "voice_id")
     private Long voiceId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @Column(name = "script_id", nullable = false)
-    private Long scriptId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "script_id")
+    private Script script;
 
     @Column(nullable = false)
     private Double duration;
@@ -38,6 +40,9 @@ public class Voice {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Source source;
+
+    @Column(name = "voice_length", nullable = false)
+    private Double voiceLength;
 
     @PrePersist
     protected void onCreate() {

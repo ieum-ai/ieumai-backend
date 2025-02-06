@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -35,4 +37,7 @@ public class User {
 
     @Column(length = 100)
     private String city;
+
+    @OneToMany(mappedBy = "user")
+    private List<Voice> voices;
 }
