@@ -1,6 +1,5 @@
 package ai.ieum.ieumai_backend.dto;
 
-import ai.ieum.ieumai_backend.domain.enums.Gender;
 import ai.ieum.ieumai_backend.domain.enums.State;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +18,7 @@ public class UserSignUpRequest {
     private String email;
 
     @NotNull(message = "성별은 필수 선택값입니다.")
-    private Gender gender;
+    private String gender;
 
     @NotNull(message = "출생년도는 필수 입력값입니다.")
     private Integer birthyear;

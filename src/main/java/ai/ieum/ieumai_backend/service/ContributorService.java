@@ -1,8 +1,8 @@
 package ai.ieum.ieumai_backend.service;
 
-import ai.ieum.ieumai_backend.domain.User;
+import ai.ieum.ieumai_backend.domain.Contributor;
 import ai.ieum.ieumai_backend.dto.UserSignUpRequest;
-import ai.ieum.ieumai_backend.repository.UserRepository;
+import ai.ieum.ieumai_backend.repository.ContributorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,18 +11,18 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
-    private final UserRepository userRepository;
+public class ContributorService {
+    private final ContributorRepository contributorRepository;
 
     @Transactional
-    public User getOrCreateUser(UserSignUpRequest request) {
-        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+    public Contributor getOrCreateUser(UserSignUpRequest request) {
+        Optional<Contributor> existingUser = contributorRepository.findByEmail(request.getEmail());
 
         if (existingUser.isPresent()) {
             return existingUser.get();
         }
 
-        User newUser = User.builder()
+        Contributor newContributor = Contributor.builder()
                 .email(request.getEmail())
                 .name(request.getName())
                 .gender(request.getGender())
@@ -31,6 +31,6 @@ public class UserService {
                 .city(request.getCity())
                 .build();
 
-        return userRepository.save(newUser);
+        return contributorRepository.save(newContributor);
     }
 }

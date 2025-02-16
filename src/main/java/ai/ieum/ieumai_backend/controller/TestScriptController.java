@@ -1,9 +1,7 @@
 package ai.ieum.ieumai_backend.controller;
 
-import ai.ieum.ieumai_backend.dto.ScriptApiRequest;
-import ai.ieum.ieumai_backend.dto.ScriptApiResponse;
-import ai.ieum.ieumai_backend.domain.Script;
-import ai.ieum.ieumai_backend.service.ScriptService;
+import ai.ieum.ieumai_backend.domain.TestScript;
+import ai.ieum.ieumai_backend.service.ContributionScriptService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +13,8 @@ import java.util.List;
 @RequestMapping("/api/gpt")
 @RequiredArgsConstructor
 @Slf4j
-public class ScriptController {
-    private final ScriptService scriptService;
+public class TestScriptController {
+    private final ContributionScriptService scriptService;
 
     // 스크립트 생성
     @PostMapping
@@ -31,27 +29,39 @@ public class ScriptController {
         }
     }
 
-    // 활성화된 스크립트 목록 조회
+    // 전체 스크립트 목록 조회
     @GetMapping("/scripts")
-    public ResponseEntity<List<Script>> getActiveScripts() {
+    public ResponseEntity<List<TestScript>> getScripts() {
         try {
-            List<Script> scripts = scriptService.getActiveScripts();
-            return ResponseEntity.ok(scripts);
+            List<TestScript> TestScripts = scriptService.getScripts();
+            return ResponseEntity.ok(TestScripts);
         } catch (Exception e) {
             log.error("스크립트 조회 실패: ", e);
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    // 스크립트 카운트 증가
-    @PostMapping("/scripts/{scriptId}/count")
-    public ResponseEntity<Void> incrementScriptCount(@PathVariable Long scriptId) {
+    // 활성화된 스크립트 목록 조회
+    @GetMapping("/scripts/active")
+    public ResponseEntity<List<TestScript>> getActiveScripts() {
         try {
-            scriptService.incrementScriptCount(scriptId);
-            return ResponseEntity.ok().build();
+            List<TestScript> TestScripts = scriptService.getActiveScripts();
+            return ResponseEntity.ok(TestScripts);
         } catch (Exception e) {
-            log.error("스크립트 카운트 증가 실패: ", e);
+            log.error("스크립트 조회 실패: ", e);
             return ResponseEntity.internalServerError().build();
         }
     }
-}
+
+    // 활성화된 스크립트 중 하나를 선택
+    @GetMapping("/scripts/random")
+    public ResponseEntity<TestScript> getOneActiveScript() {
+        try {
+            TestScript TestScript = scriptService.getOneActiveScript();
+            return ResponseEntity.ok(TestScript);
+        } catch (Exception e) {
+            log.error("스크립트 조회 실패: ", e);
+            return ResponseEntity.internalServerError().build();
+        }
+
+    }

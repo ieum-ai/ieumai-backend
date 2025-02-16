@@ -1,7 +1,6 @@
 package ai.ieum.ieumai_backend.controller;
 
-import ai.ieum.ieumai_backend.domain.Voice;
-import ai.ieum.ieumai_backend.domain.enums.Source;
+import ai.ieum.ieumai_backend.domain.VoiceFile;
 import ai.ieum.ieumai_backend.dto.CommonResponse;
 import ai.ieum.ieumai_backend.service.VoiceService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,7 @@ public class VoiceController {
         }
 
         try {
-            Voice savedVoice = voiceService.saveVoiceRecord(file, userId, scriptId, source);
+            VoiceFile savedVoice = voiceService.saveVoiceRecord(file, userId, scriptId, source);
             return ResponseEntity.ok(new CommonResponse("음성이 성공적으로 저장되었습니다.", savedVoice));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
