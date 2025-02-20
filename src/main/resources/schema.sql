@@ -42,15 +42,15 @@ CREATE TABLE contributor (
                              contributor_id BIGINT PRIMARY KEY AUTO_INCREMENT,
                              name VARCHAR(255) NOT NULL,
                              email VARCHAR(255) NOT NULL,
-                             gender VARCHAR(255),
-                             birthyear INT,
-                             state VARCHAR(20),
-                             city VARCHAR(20)
+                             gender VARCHAR(255) NOT NULL,
+                             birthyear INT NOT NULL,
+                             state VARCHAR(20) NOT NULL,
+                             city VARCHAR(20) NULL
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE contribution_script (
                                      contribution_script_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                                     script VARCHAR(255) NOT NULL,
+                                     contribution_script VARCHAR(255) NOT NULL,
                                      contribution_count INT DEFAULT 0,
                                      is_active BOOLEAN DEFAULT TRUE,
                                      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -116,8 +116,8 @@ CREATE TABLE test_script_voice_file (
 CREATE TABLE user_review (
                              user_review_id BIGINT PRIMARY KEY AUTO_INCREMENT,
                              test_voice_id BIGINT NOT NULL,
-                             state VARCHAR(20),
-                             city VARCHAR(20),
+                             state VARCHAR(20) NOT NULL,
+                             city VARCHAR(20) NULL,
                              FOREIGN KEY (test_voice_id) REFERENCES test_script_voice_file(id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

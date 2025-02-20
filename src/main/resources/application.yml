@@ -1,20 +1,13 @@
-# 일부러 gitignore 안한거임 안에 든게 없음
+#aws secret key manager 쓸거라 일부러 gitignore안했어요 최종수정때 할게요~
 
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/your_db_name?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: eeedddiii
-    password: 0125
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
-        types:
-          print:
-            banner: false
         jdbc:
           time_zone: Asia/Seoul
     show-sql: true
@@ -23,33 +16,27 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
 
-aws:
-  access-key: ${AWS_ACCESS_KEY}
-  secret-key: ${AWS_SECRET_KEY}
-  region: ${AWS_REGION}
-  ses:
-    from: ${SES_FROM_EMAIL}
-
 cloud:
   aws:
     credentials:
-      access-key: YOUR_ACCESS_KEY
-      secret-key: YOUR_SECRET_KEY
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
     s3:
-      bucket: your-bucket-name
+      bucket: ieumai-s3-bucket
     region:
-      static: ap-northeast-2
+      static: ${AWS_REGION:ap-northeast-2}
+    stack:
+      auto: false
 
+# AWS SES 관련 설정
+aws:
+  ses:
+    from: ${SES_FROM_EMAIL}
+
+# JWT 관련 설정
 jwt:
-  secret: your-256-bit-secret-key-here-must-be-at-least-32-characters
+  secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-at-least-32-characters}
   token-validity-in-seconds: 86400
 
-
-
-  #MYSQL_USER=your_mysql_user
-  #MYSQL_PASSWORD=your_mysql_password
-  #AWS_ACCESS_KEY=your_aws_access_key
-  #AWS_SECRET_KEY=your_aws_secret_key
-  #AWS_REGION=your_aws_region
-  #SES_FROM_EMAIL=your_verified_sender@domain.com
-  #JWT_SECRET=your_jwt_secret
+openai:
+  api-key: your-api-key-here
