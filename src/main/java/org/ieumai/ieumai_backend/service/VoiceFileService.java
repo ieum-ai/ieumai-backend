@@ -6,6 +6,7 @@ import javax.sound.sampled.AudioFormat;
 
 import org.ieumai.ieumai_backend.domain.VoiceFile;
 import org.ieumai.ieumai_backend.domain.enums.Source;
+import org.ieumai.ieumai_backend.dto.VoiceUploadResponse;
 import org.ieumai.ieumai_backend.exception.FileStorageException;
 import org.ieumai.ieumai_backend.repository.ContributionScriptRepository;
 import org.ieumai.ieumai_backend.repository.ContributorRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Slf4j
@@ -37,11 +39,10 @@ public class VoiceFileService {
     private String bucket;
 
     @Transactional
-    public VoiceFile saveVoiceRecord(MultipartFile file, Source source) {
-
+    public VoiceUploadResponse saveVoiceRecord(MultipartFile file, Long scriptId, Source source) {
         try {
             String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-            String fileName = String.format("%s/%d.wav", today, System.currentTimeMillis());
+            String fileName = String.format("%s/%d_%d.wav", today, scriptId, System.currentTimeMillis());
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
@@ -49,16 +50,29 @@ public class VoiceFileService {
 
             s3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
 
+            Long voiceLength = calculateVoiceLength(file);
+            LocalDateTime now = LocalDateTime.now();
+
             VoiceFile voice = VoiceFile.builder()
-                    .voiceLength(calculateVoiceLength(file))
+                    .voiceLength(voiceLength)
                     .path(fileName)
                     .source(source)
+                    .createdAt(now)
                     .build();
 
-            return voiceFileRepository.save(voice);
+            VoiceFile savedVoice = voiceFileRepository.save(voice);
+
+            // Entity를 DTO로 변환
+            return new VoiceUploadResponse(
+                    savedVoice.getVoiceFileId(),
+                    savedVoice.getPath(),
+                    savedVoice.getVoiceLength(),
+                    savedVoice.getSource(),
+                    savedVoice.getCreatedAt()
+            );
         } catch (IOException e) {
             log.error("Failed to save voice file to S3: ", e);
-            throw new FileStorageException("음성 파일 저장에 실패했습니다.");
+            throw new FileStorageException("음성 파일 저장에 실패했습니다: " + e.getMessage());
         }
     }
 

@@ -1,14 +1,16 @@
 package org.ieumai.ieumai_backend.domain;
 
+import lombok.*;
 import org.ieumai.ieumai_backend.domain.enums.Source;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Getter @Setter
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "voice_file")
 public class VoiceFile {
     @Id
@@ -21,14 +23,5 @@ public class VoiceFile {
 
     @Enumerated(EnumType.STRING)
     private Source source;
-
-    @Builder
-    public VoiceFile(Long voiceLength, String path, Source source) {
-        this.voiceLength = voiceLength;
-        this.path = path;
-        this.source = source;
-    }
-
-    protected VoiceFile() {}
 
 }

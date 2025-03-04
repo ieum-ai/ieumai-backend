@@ -1,6 +1,7 @@
 package org.ieumai.ieumai_backend.service;
 
 import org.ieumai.ieumai_backend.domain.ContributionScript;
+import org.ieumai.ieumai_backend.dto.ContributionScriptResponse;
 import org.ieumai.ieumai_backend.repository.ContributionScriptRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -76,6 +77,7 @@ public class ContributionScriptService {
                                 .contributionScript(scriptContent)
                                 .contributionCount(0)
                                 .isActive(true)
+                                .createdAt(java.time.LocalDateTime.now())
                                 .build();
                         scripts.add(contributionScriptRepository.save(newScript));
                     }
@@ -164,8 +166,16 @@ public class ContributionScriptService {
         return scripts.subList(0, count);
     }
 
+    // Entity를 DTO로 변환하는 메서드
+    private ContributionScriptResponse convertToDTO(ContributionScript script) {
+        return new ContributionScriptResponse(
+                script.getContributionScriptId(),
+                script.getContributionScript()
+        );
+    }
+
     @Transactional
-    public String getRandomActiveScriptsAsJson() {
+    public List<ContributionScriptResponse> getRandomActiveScripts() {
         List<ContributionScript> activeScripts = getActiveScripts();
 
         // 활성 스크립트가 최소 개수보다 적으면 새로 생성
@@ -177,18 +187,10 @@ public class ContributionScriptService {
         // 랜덤하게 3개 선택
         List<ContributionScript> selectedScripts = selectRandomScripts(activeScripts, SCRIPTS_PER_REQUEST);
 
-        // 스크립트 내용만 추출하여 리스트 생성
-        List<String> scriptTexts = selectedScripts.stream()
-                .map(ContributionScript::getContributionScript)
+        // Entity를 DTO로 변환
+        return selectedScripts.stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
-
-        try {
-            // JSON 배열로 변환
-            return objectMapper.writeValueAsString(scriptTexts);
-        } catch (JsonProcessingException e) {
-            log.error("JSON 변환 중 오류 발생: ", e);
-            throw new RuntimeException("스크립트 JSON 변환 실패: " + e.getMessage());
-        }
     }
 
     // 활성 상태 스크립트 목록 조회 메서드

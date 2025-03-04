@@ -1,0 +1,52 @@
+spring:
+  # 테스트용 데이터베이스 설정
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  # JPA 설정
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+
+  # 테스트용 이메일 설정
+  mail:
+    host: localhost
+    port: 3025
+    username: test
+    password: test
+
+# AWS 연결 설정 (목업용)
+cloud:
+  aws:
+    s3:
+      bucket: test-bucket
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: test-access-key
+      secret-key: test-secret-key
+    stack:
+      auto: false
+
+# JWT 설정
+jwt:
+  secret: test-jwt-secret-key-for-testing-purposes-only-needs-to-be-long-enough
+  token-validity-in-seconds: 3600
+
+# OpenAI API 키 설정
+openai:
+  api-key: test-api-key
+
+# AWS SES 설정
+aws:
+  ses:
+    from-email: test@example.com

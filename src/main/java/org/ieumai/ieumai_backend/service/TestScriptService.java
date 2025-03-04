@@ -1,6 +1,7 @@
 package org.ieumai.ieumai_backend.service;
 
 import org.ieumai.ieumai_backend.domain.TestScript;
+import org.ieumai.ieumai_backend.dto.TestScriptResponse;
 import org.ieumai.ieumai_backend.repository.TestScriptRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public class TestScriptService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    private final TestScriptRepository TestScriptRepository;
+    private final TestScriptRepository testScriptRepository;
 
     @Value("${openai.api-key}")
     private String apiKey;
@@ -76,8 +77,9 @@ public class TestScriptService {
                                 .testScript(scriptContent)
                                 .testCount(0)
                                 .isActive(true)
+                                .createdAt(java.time.LocalDateTime.now())
                                 .build();
-                        scripts.add(TestScriptRepository.save(newScript));
+                        scripts.add(testScriptRepository.save(newScript));
                     }
                 }
             }
@@ -164,8 +166,16 @@ public class TestScriptService {
         return scripts.subList(0, count);
     }
 
+    // Entity를 DTO로 변환하는 메서드
+    private TestScriptResponse convertToDTO(TestScript script) {
+        return new TestScriptResponse(
+                script.getTestScriptId(),
+                script.getTestScript()
+        );
+    }
+
     @Transactional
-    public String getRandomActiveScriptsAsJson() {
+    public List<TestScriptResponse> getRandomActiveScripts() {
         List<TestScript> activeScripts = getActiveScripts();
 
         // 활성 스크립트가 최소 개수보다 적으면 새로 생성
@@ -174,42 +184,33 @@ public class TestScriptService {
             activeScripts = getActiveScripts();
         }
 
-        // 랜덤하게 3개 선택
+        // 랜덤하게 2개 선택
         List<TestScript> selectedScripts = selectRandomScripts(activeScripts, SCRIPTS_PER_REQUEST);
 
-        // 스크립트 내용만 추출하여 리스트 생성
-        List<String> scriptTexts = selectedScripts.stream()
-                .map(TestScript::getTestScript)
+        // Entity를 DTO로 변환
+        return selectedScripts.stream()
+                .map(this::convertToDTO)
                 .collect(Collectors.toList());
-
-        try {
-            // JSON 배열로 변환
-            return objectMapper.writeValueAsString(scriptTexts);
-        } catch (JsonProcessingException e) {
-            log.error("JSON 변환 중 오류 발생: ", e);
-            throw new RuntimeException("스크립트 JSON 변환 실패: " + e.getMessage());
-        }
     }
 
     // 활성 상태 스크립트 목록 조회 메서드
     private List<TestScript> getActiveScripts() {
-        return TestScriptRepository.findByIsActiveTrue();
+        return testScriptRepository.findByIsActiveTrue();
     }
 
     // Test_count 증가 메서드
     @Transactional
     public TestScript incrementTestCount(Long testScriptId) {
-        TestScript testScript = TestScriptRepository.findById(testScriptId)
+        TestScript testScript = testScriptRepository.findById(testScriptId)
                 .orElseThrow(() -> new RuntimeException("스크립트를 찾을 수 없습니다: " + testScriptId));
 
         testScript.incrementTestCount();
 
-        // 최대 기여 횟수 도달 시 비활성화
+        // 최대 테스트 횟수 도달 시 비활성화
         if (testScript.getTestCount() >= MAX_TEST_COUNT) {
             testScript.deactivate();
         }
 
-        return TestScriptRepository.save(testScript);
+        return testScriptRepository.save(testScript);
     }
 }
-

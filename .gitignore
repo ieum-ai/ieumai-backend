@@ -1,0 +1,25 @@
+# .env 파일 무시
+.env
+
+# IDE 설정 파일
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# 빌드 파일 무시
+build/
+out/
+target/
+.gradle/
+bin/
+
+# 로그 파일
+*.log
+
+# OS 파일
+.DS_Store
+Thumbs.db

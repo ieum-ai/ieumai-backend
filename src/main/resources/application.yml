@@ -1,5 +1,3 @@
-#aws secret key manager 쓸거라 일부러 gitignore안했어요 최종수정때 할게요~
-
 spring:
   jpa:
     hibernate:
@@ -22,7 +20,7 @@ cloud:
       access-key: ${AWS_ACCESS_KEY}
       secret-key: ${AWS_SECRET_KEY}
     s3:
-      bucket: ieumai-s3-bucket
+      bucket: ${S3_BUCKET_NAME}
     region:
       static: ${AWS_REGION:ap-northeast-2}
     stack:
@@ -35,8 +33,8 @@ aws:
 
 # JWT 관련 설정
 jwt:
-  secret: ${JWT_SECRET:your-256-bit-secret-key-here-must-be-at-least-32-characters}
+  secret: ${JWT_SECRET}
   token-validity-in-seconds: 86400
 
 openai:
-  api-key: your-api-key-here
+  api-key: ${OPENAI_API_KEY}

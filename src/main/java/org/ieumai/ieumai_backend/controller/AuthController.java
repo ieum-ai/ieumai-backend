@@ -1,6 +1,5 @@
 package org.ieumai.ieumai_backend.controller;
 
-import org.ieumai.ieumai_backend.config.swagger.ApiResponseSchema;
 import org.ieumai.ieumai_backend.dto.AuthResponse;
 import org.ieumai.ieumai_backend.dto.CommonResponse;
 import org.ieumai.ieumai_backend.dto.EmailRequest;
@@ -15,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,27 +33,27 @@ public class AuthController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "PIN 전송 성공",
-                    content = @Content(schema = @Schema(implementation = ApiResponseSchema.class))),
+                    content = @Content(schema = @Schema(implementation = CommonResponse.class))),
             @ApiResponse(responseCode = "429",
                     description = "요청 제한 초과",
-                    content = @Content(schema = @Schema(implementation = ApiResponseSchema.class))),
+                    content = @Content(schema = @Schema(implementation = CommonResponse.class))),
             @ApiResponse(responseCode = "500",
                     description = "서버 내부 오류",
-                    content = @Content(schema = @Schema(implementation = ApiResponseSchema.class)))
+                    content = @Content(schema = @Schema(implementation = CommonResponse.class)))
     })
-    public ResponseEntity<?> requestPin(
-            @Valid @RequestBody @Email(message = "올바른 이메일 형식이 아닙니다.") EmailRequest request,
+    public ResponseEntity<CommonResponse<Void>> requestPin(
+            @Valid @RequestBody EmailRequest request,
             HttpServletRequest servletRequest) {
         try {
             authService.requestPin(request.getEmail(), getClientIp(servletRequest));
-            return ResponseEntity.ok(new CommonResponse("인증번호가 이메일로 전송되었습니다."));
+            return ResponseEntity.ok(new CommonResponse<>("인증번호가 이메일로 전송되었습니다."));
         } catch (IpLimitException e) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(new CommonResponse(e.getMessage()));
+                    .body(new CommonResponse<>(e.getMessage()));
         } catch (Exception e) {
             log.error("PIN 요청 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new CommonResponse("서버 오류가 발생했습니다."));
+                    .body(new CommonResponse<>("서버 오류가 발생했습니다."));
         }
     }
 
@@ -68,10 +66,10 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = AuthResponse.class))),
             @ApiResponse(responseCode = "400",
                     description = "잘못된 PIN",
-                    content = @Content(schema = @Schema(implementation = ApiResponseSchema.class))),
+                    content = @Content(schema = @Schema(implementation = CommonResponse.class))),
             @ApiResponse(responseCode = "500",
                     description = "서버 내부 오류",
-                    content = @Content(schema = @Schema(implementation = ApiResponseSchema.class)))
+                    content = @Content(schema = @Schema(implementation = CommonResponse.class)))
     })
     public ResponseEntity<?> verifyPin(@Valid @RequestBody VerifyPinRequest request) {
         try {
@@ -79,11 +77,11 @@ public class AuthController {
             return ResponseEntity.ok(new AuthResponse(token));
         } catch (PinVerificationException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new CommonResponse(e.getMessage()));
+                    .body(new CommonResponse<>(e.getMessage()));
         } catch (Exception e) {
             log.error("PIN 검증 중 오류 발생", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new CommonResponse("서버 오류가 발생했습니다."));
+                    .body(new CommonResponse<>("서버 오류가 발생했습니다."));
         }
     }
 
