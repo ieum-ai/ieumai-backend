@@ -22,10 +22,11 @@ spring:
 cloud:
   aws:
     credentials:
-      access-key: ${AWS_ACCESS_KEY}
-      secret-key: ${AWS_SECRET_KEY}
+      access-key: ${AWS_ACCESS_KEY:default-access-key}
+      secret-key: ${AWS_SECRET_KEY:default-secret-key}
     s3:
-      bucket: ${S3_BUCKET_NAME}
+      bucket: ${S3_BUCKET_NAME:ieumai-s3-bucket}
+      enabled: true
     region:
       static: ${AWS_REGION:ap-northeast-2}
     stack:
@@ -34,7 +35,8 @@ cloud:
 # AWS SES 관련 설정
 aws:
   ses:
-    from: ${SES_FROM_EMAIL}
+    from-email: ${SES_FROM_EMAIL:noreply@example.com}
+    enabled: true
 
 # JWT 관련 설정
 jwt:

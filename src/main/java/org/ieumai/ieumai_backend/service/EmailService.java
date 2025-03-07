@@ -1,5 +1,6 @@
 package org.ieumai.ieumai_backend.service;
 
+import jakarta.annotation.PostConstruct;
 import org.ieumai.ieumai_backend.exception.EmailSendException;
 import org.ieumai.ieumai_backend.exception.EmailTemplateException;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -7,23 +8,52 @@ import com.amazonaws.services.simpleemail.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@ConditionalOnProperty(
+        name = "aws.ses.enabled",
+        havingValue = "true",
+        matchIfMissing = true
+)
 public class EmailService {
     private final AmazonSimpleEmailService amazonSES;
     private final ResourceLoader resourceLoader;
+    private final Environment environment;
     private static final String PIN_VERIFICATION_TEMPLATE = "email/pin-verification.html";
 
     @Value("${aws.ses.from-email}")
     private String fromEmail;
+
+    @PostConstruct
+    public void init() {
+        try {
+            // SES 연결 테스트
+            amazonSES.listIdentities();
+            log.info("AWS SES 연결 성공");
+        } catch (Exception e) {
+            log.error("AWS SES 연결 실패", e);
+            // 개발 환경에서는 로깅만 하고 운영 환경에서는 애플리케이션 시작 차단
+            if (!isDevEnvironment()) {
+                throw new RuntimeException("AWS SES 연결에 실패했습니다", e);
+            }
+        }
+    }
+
+    private boolean isDevEnvironment() {
+        return Arrays.stream(environment.getActiveProfiles())
+                .anyMatch(profile -> profile.contains("dev") || profile.contains("local"));
+    }
 
     public void sendPinEmail(String to, String pin) {
         try {
