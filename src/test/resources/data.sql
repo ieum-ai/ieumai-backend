@@ -7,4 +7,8 @@ VALUES (2, '테스트용 기여 스크립트 2입니다. 다양한 억양과 방
 
 -- 테스트용 사용자 데이터
 INSERT INTO contributor (contributor_id, name, email, gender, birthyear, state, city)
-VALUES (1, '테스트사용자', 'test@example.com', '남성', 1990, '서울특별시', '서울시');
+VALUES (1, '테스트사용자', 'test@example.com', '남성', 1990, '서울특별시', NULL); -- city를 NULL로 변경하거나 유효한 값으로 변경
+
+-- 테스트용 contribution 데이터
+INSERT INTO contribution (contribution_id, contributor_id)
+VALUES (1, 1);

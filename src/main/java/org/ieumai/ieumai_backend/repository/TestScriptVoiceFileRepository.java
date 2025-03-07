@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface TestScriptVoiceFileRepository extends JpaRepository<TestScriptVoiceFile, Long> {
-    List<TestScriptVoiceFile> findByTestId(Long testId);
-    List<TestScriptVoiceFile> findByTestScriptId(Long testScriptId);
+
+    List<TestScriptVoiceFile> findByTest_TestId(Long testId);
+    List<TestScriptVoiceFile> findByTestScript_TestScriptId(Long testScriptId);
 }

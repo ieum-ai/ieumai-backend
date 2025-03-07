@@ -67,7 +67,7 @@ public class ContributorService {
 
     public ContributorProfile convertToProfile(Contributor contributor) {
         // 기여 횟수 조회
-        List<Contribution> contributions = contributionRepository.findByContributorId(contributor.getContributorId());
+        List<Contribution> contributions = contributionRepository.findByContributor_ContributorId(contributor.getContributorId());
         int totalContributions = contributions.size();
 
         return ContributorProfile.builder()

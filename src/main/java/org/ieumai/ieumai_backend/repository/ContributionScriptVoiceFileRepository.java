@@ -8,6 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ContributionScriptVoiceFileRepository extends JpaRepository<ContributionScriptVoiceFile, Long> {
-    List<ContributionScriptVoiceFile> findByContributionId(Long contributionId);
-    List<ContributionScriptVoiceFile> findByContributionScriptId(Long contributionScriptId);
+
+    List<ContributionScriptVoiceFile> findByContribution_ContributionId(Long contributionId);
+    List<ContributionScriptVoiceFile> findByContributionScript_ContributionScriptId(Long contributionScriptId);
 }

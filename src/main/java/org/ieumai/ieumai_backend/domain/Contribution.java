@@ -10,6 +10,7 @@ import lombok.Setter;
 public class Contribution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "contribution_id")
     private Long contributionId;
 
     @ManyToOne(fetch = FetchType.LAZY)

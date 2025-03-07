@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ContributionRepository extends JpaRepository<Contribution, Long> {
-    List<Contribution> findByContributorId(Long contributorId);
+    List<Contribution> findByContributor_ContributorId(Long contributorId);
 }

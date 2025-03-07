@@ -9,7 +9,5 @@ import java.util.List;
 
 @Repository
 public interface VoiceFileRepository extends JpaRepository<VoiceFile, Long> {
-    List<VoiceFile> findByUserId(Long userId);
-    List<VoiceFile> findByScriptId(Long scriptId);
     List<VoiceFile> findBySource(Source source);
 }

@@ -11,6 +11,10 @@ import lombok.Setter;
 @Table(name = "user_review")
 public class UserReview {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_review_id")
+    private Long userReviewId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_voice_id")
     private TestScriptVoiceFile testVoice;
