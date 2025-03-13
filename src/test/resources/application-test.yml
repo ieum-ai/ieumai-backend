@@ -50,3 +50,13 @@ openai:
 aws:
   ses:
     from-email: test@example.com
+
+swagger:
+  auth:
+    username: test-admin
+    password: test-password
+
+api:
+  auth:
+    username: test-api-client
+    password: test-api-password

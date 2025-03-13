@@ -45,3 +45,13 @@ jwt:
 
 openai:
   api-key: ${OPENAI_API_KEY}
+
+swagger:
+  auth:
+    username: admin
+    password: ${SWAGGER_PASSWORD:default-password-for-development-only}
+
+api:
+  auth:
+    username: user
+    password: ${API_CLIENT_PASSWORD:default-api-password}
