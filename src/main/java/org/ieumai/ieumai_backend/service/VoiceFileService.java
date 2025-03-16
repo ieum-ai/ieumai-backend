@@ -13,9 +13,12 @@ import org.ieumai.ieumai_backend.repository.ContributorRepository;
 import org.ieumai.ieumai_backend.repository.VoiceFileRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -120,5 +123,27 @@ public class VoiceFileService {
             log.error("음성 길이 계산 실패", e);
             return 0L;
         }
+    }
+
+    /**
+     * 공개적으로 접근 가능한 음성 파일 리소스를 가져옵니다.
+     * 모든 사용자가 접근할 수 있으며 인증이 필요하지 않습니다.
+     *
+     * @param voiceFileId 음성 파일 ID
+     * @return 음성 파일 리소스
+     */
+    @Transactional(readOnly = true)
+    public Resource getVoiceFileResourcePublic(Long voiceFileId) {
+        // 음성 파일 조회
+        VoiceFile voiceFile = voiceFileRepository.findById(voiceFileId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 음성 파일을 찾을 수 없습니다: " + voiceFileId));
+
+        if (s3Client.isEmpty()) {
+            throw new IllegalStateException("S3 클라이언트를 사용할 수 없습니다.");
+        }
+
+        // S3에서 파일 가져오기
+        S3Object s3Object = s3Client.get().getObject(bucket, voiceFile.getPath());
+        return new InputStreamResource(s3Object.getObjectContent());
     }
 }

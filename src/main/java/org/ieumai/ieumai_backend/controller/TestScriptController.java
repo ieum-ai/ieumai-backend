@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/test-scripts")
+@RequestMapping("/test-scripts")
 @RequiredArgsConstructor
 public class TestScriptController {
 

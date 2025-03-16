@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/contributors")
+@RequestMapping("/contributors")
 @RequiredArgsConstructor
 public class ContributorController {
 
@@ -97,6 +97,27 @@ public class ContributorController {
         } catch (Exception e) {
             log.error("기여자 정보 수정 중 오류 발생: ", e);
             return ResponseEntity.badRequest().body(new CommonResponse<>("기여자 정보 수정에 실패했습니다: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/count")
+    @Operation(summary = "총 기여자 수 조회",
+            description = "시스템에 등록된 총 기여자 수를 조회합니다")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "총 기여자 수 조회 성공",
+                    content = @Content(schema = @Schema(implementation = Long.class))),
+            @ApiResponse(responseCode = "500",
+                    description = "서버 오류",
+                    content = @Content(schema = @Schema(implementation = CommonResponse.class)))
+    })
+    public ResponseEntity<?> getTotalContributorsCount() {
+        try {
+            long totalCount = contributorService.getTotalContributorsCount();
+            return ResponseEntity.ok(new CommonResponse<>("총 기여자 수 조회 성공", totalCount));
+        } catch (Exception e) {
+            log.error("총 기여자 수 조회 중 오류 발생: ", e);
+            return ResponseEntity.status(500).body(new CommonResponse<>("총 기여자 수 조회에 실패했습니다: " + e.getMessage()));
         }
     }
 }

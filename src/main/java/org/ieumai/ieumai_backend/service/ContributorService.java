@@ -81,4 +81,10 @@ public class ContributorService {
                 .totalContributions(totalContributions)
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public long getTotalContributorsCount() {
+        return contributorRepository.count();
+    }
+
 }

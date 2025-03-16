@@ -18,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/contribution-scripts")
+@RequestMapping("/contribution-scripts")
 @RequiredArgsConstructor
 public class ContributionScriptController {
 

@@ -42,9 +42,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/regions/**").permitAll()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/regions/**").permitAll()
+                        .requestMatchers("/contributors/count").permitAll()
+                        .requestMatchers("db/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
