@@ -16,14 +16,36 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Deploy to EC2 instance via SSH
-      uses: appleboy/ssh-action@master # SSH 연결 및 명령어 실행을 위한 액션
+    - name: Manage Screen Session and Run Build Script
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST_IP }}        # GitHub Secrets에서 호스트 IP 가져오기
         username: ${{ secrets.EC2_USERNAME }}     # GitHub Secrets에서 사용자 이름 가져오기
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY }} # GitHub Secrets에서 PEM 키 내용 가져오기
-        port: 22             # SSH 포트 (기본값은 22, 필요시 secret으로 관리 가능)
-        script: | # EC2 인스턴스에서 실행할 명령어들
-          echo "Attempting to send command to screen session 'ieumai-backend'..."
-          screen -S ieumai-backend -X stuff "sudo sh ~/ieumai-backend/build-script.sh\n"
-          echo "Command sent to screen session 'ieumai-backend'."
+        port: 22             # SSH 포트
+        script: |
+          SESSION_NAME="ieumai-backend"
+          BUILD_SCRIPT_PATH="~/ieumai-backend/build-script.sh" # 스크립트 경로 변수화
+
+          # 1. 기존 세션 확인 및 종료
+          echo "Checking for existing screen session: $SESSION_NAME"
+          if screen -ls | grep -q "\.$SESSION_NAME\s"; then # 정확한 세션 이름 매칭 (예: 1234.ieumai-backend)
+            echo "Existing session found. Terminating..."
+            screen -S $SESSION_NAME -X quit # 기존 세션 종료 명령 전송
+            sleep 1 # 세션이 완전히 종료될 시간을 잠시 줍니다 (선택 사항이지만 권장).
+            echo "Existing session terminated."
+          else
+            echo "No existing session found."
+          fi
+
+          # 2. 새 세션 생성
+          echo "Creating new detached screen session: $SESSION_NAME"
+          screen -S $SESSION_NAME -d -m # Detached 모드로 새 세션 생성
+
+          # 3. 새 세션에 빌드 스크립트 실행 명령어 전송
+          echo "Sending command to new session: sudo sh $BUILD_SCRIPT_PATH"
+          # 'stuff' 명령어는 문자열을 입력 버퍼에 넣는 방식이므로, 경로에 공백 등이 있다면 주의해야 합니다.
+          # 여기서는 따옴표 안에 변수를 넣어 안전하게 처리합니다.
+          screen -S $SESSION_NAME -X stuff "sudo sh $BUILD_SCRIPT_PATH$(printf '\r')" # 명령어 + Enter 키 입력 효과
+
+          echo "Command sent successfully to $SESSION_NAME."
