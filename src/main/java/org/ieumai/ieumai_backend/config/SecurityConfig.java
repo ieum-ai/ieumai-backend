@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/regions/**").permitAll()
                         .requestMatchers("/contributors/count").permitAll()
-                        .requestMatchers("db/**").permitAll()
+                        .requestMatchers("/db/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
@@ -56,9 +56,9 @@ public class SecurityConfig {
                                 "/error"
                         ).permitAll()
                         .requestMatchers("/shell/**").denyAll() // 쉘 관련 경로 차단
-                        .requestMatchers("**/.git/**").denyAll() // Git 관련 접근 차단
-                        .requestMatchers("**/.aws/**").denyAll() // AWS 관련 접근 차단
-                        .requestMatchers("**/\\.env").denyAll() // .env 파일 접근 차단
+                        .requestMatchers("/**/.git/**").denyAll() // Git 관련 접근 차단
+                        .requestMatchers("/**/.aws/**").denyAll() // AWS 관련 접근 차단
+                        .requestMatchers("/**/\\.env").denyAll() // .env 파일 접근 차단
                         .requestMatchers("/index.php/**").denyAll() // ThinkPHP 관련 접근 차단
                         .anyRequest().authenticated()
                 )
