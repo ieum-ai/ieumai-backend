@@ -1,10 +1,13 @@
 package org.ieumai.ieumai_backend.config;
 
 import lombok.RequiredArgsConstructor;
+import org.ieumai.ieumai_backend.config.jwt.JwtAuthenticationEntryPoint;
+import org.ieumai.ieumai_backend.config.jwt.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,10 +18,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -28,16 +33,16 @@ public class SecurityConfig {
     @Value("${swagger.auth.password}")
     private String swaggerPassword;
 
-    @Value("${api.auth.username}")
-    private String apiUsername;
-
-    @Value("${api.auth.password}")
-    private String apiPassword;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
@@ -46,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/regions/**").permitAll()
                         .requestMatchers("/contributors/count").permitAll()
                         .requestMatchers("/db/**").permitAll()
+                        .requestMatchers("/voice/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
@@ -62,7 +68,9 @@ public class SecurityConfig {
                         .requestMatchers("/index.php/**").denyAll() // ThinkPHP 관련 접근 차단
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // Basic Auth 활성화
+                // JWT 필터 등록 (UsernamePasswordAuthenticationFilter 이전에)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .httpBasic(Customizer.withDefaults()); // Swagger UI용 HTTP Basic 인증 유지
 
         http.headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.sameOrigin())
@@ -74,21 +82,13 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        // Swagger UI 접근용 사용자
         UserDetails swaggerUser = User.builder()
                 .username(swaggerUsername)
                 .password(passwordEncoder().encode(swaggerPassword))
                 .roles("SWAGGER_ADMIN")
                 .build();
 
-        // API 접근용 사용자
-        UserDetails apiUser = User.builder()
-                .username(apiUsername)
-                .password(passwordEncoder().encode(apiPassword))
-                .roles("API_USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(swaggerUser, apiUser);
+        return new InMemoryUserDetailsManager(swaggerUser);
     }
 
     @Bean

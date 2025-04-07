@@ -41,7 +41,8 @@ aws:
 # JWT 관련 설정
 jwt:
   secret: ${JWT_SECRET}
-  token-validity-in-seconds: 86400
+  token-validity-in-seconds: 3600  # 1시간
+  refresh-token-validity-in-seconds: 86400  # 24시간
 
 openai:
   api-key: ${OPENAI_API_KEY}
@@ -50,8 +51,3 @@ swagger:
   auth:
     username: admin
     password: ${SWAGGER_PASSWORD:default-password-for-development-only}
-
-api:
-  auth:
-    username: user
-    password: ${API_CLIENT_PASSWORD:default-api-password}
