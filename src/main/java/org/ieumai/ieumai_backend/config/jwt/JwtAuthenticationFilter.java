@@ -27,17 +27,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+
+        // === Swagger, favicon.ico, error 경로는 JWT 검사 없이 바로 통과 ===
+        if (path.startsWith("/swagger-ui")
+                || path.startsWith("/swagger-resources")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/favicon.ico")
+                || path.startsWith("/error")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String jwt = resolveToken(request);
 
         if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
             try {
                 String email = jwtTokenProvider.getEmailFromToken(jwt);
 
-                // 인증 정보 생성 (이메일 + USER 권한)
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         email, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
 
-                // SecurityContext에 인증 정보 저장
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
                 log.debug("Token authentication successful for user: {}", email);
@@ -47,6 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        // (토큰 없거나 인증 실패해도) 다음 필터로 진행
         filterChain.doFilter(request, response);
     }
 
