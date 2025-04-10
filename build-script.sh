@@ -3,6 +3,11 @@
 ARTIFACT_DIR="./build/libs"
 PORT=8080
 
+# 기본 브랜치 설정
+if [ -z "$BRANCH_NAME" ]; then
+  BRANCH_NAME="main"
+fi
+
 echo "=== Starting Deployment Script ==="
 
 set -e
