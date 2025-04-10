@@ -19,7 +19,6 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
-@Order(2) // BasicSecurityConfig 다음에 적용
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
@@ -29,43 +28,36 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     @Bean
+    @Order(1)
+    public SecurityFilterChain swaggerFilterChain(HttpSecurity http) throws Exception {
+        http
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**")
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
-        // Swagger UI 경로를 제외한 모든 요청에 적용될 필터체인
         RequestMatcher swaggerMatcher = new OrRequestMatcher(
                 new AntPathRequestMatcher("/swagger-ui/**"),
                 new AntPathRequestMatcher("/v3/api-docs/**"),
                 new AntPathRequestMatcher("/swagger-resources/**")
         );
-
         RequestMatcher notSwaggerMatcher = new NegatedRequestMatcher(swaggerMatcher);
 
         http
                 .securityMatcher(notSwaggerMatcher)
                 .csrf(csrf -> csrf.disable())
-                .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                )
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/regions/**").permitAll()
-                        .requestMatchers("/contributors/count").permitAll()
-                        .requestMatchers("/db/**").permitAll()
-                        .requestMatchers("/voice/**").permitAll()
-                        .requestMatchers(
-                                "/favicon.ico",
-                                "/error"
-                        ).permitAll()
-                        .requestMatchers("/shell/**").denyAll() // 쉘 관련 경로 차단
-                        .requestMatchers("/**/.git/**").denyAll() // Git 관련 접근 차단
-                        .requestMatchers("/**/.aws/**").denyAll() // AWS 관련 접근 차단
-                        .requestMatchers("/**/\\.env").denyAll() // .env 파일 접근 차단
-                        .requestMatchers("/index.php/**").denyAll() // ThinkPHP 관련 접근 차단
+                        .requestMatchers("/", "/actuator/health", "/auth/**", "/regions/**", "/contributors/count",
+                                "/db/**", "/voice/**", "/favicon.ico", "/error").permitAll()
+                        .requestMatchers("/shell/**", "/**/.git/**", "/**/.aws/**", "/**/.env", "/index.php/**").denyAll()
                         .anyRequest().authenticated()
                 )
-                // JWT 필터 등록 (UsernamePasswordAuthenticationFilter 이전에)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.headers(headers -> headers
