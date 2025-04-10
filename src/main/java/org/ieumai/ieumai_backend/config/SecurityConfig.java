@@ -3,10 +3,10 @@ package org.ieumai.ieumai_backend.config;
 import lombok.RequiredArgsConstructor;
 import org.ieumai.ieumai_backend.config.jwt.JwtAuthenticationEntryPoint;
 import org.ieumai.ieumai_backend.config.jwt.JwtAuthenticationFilter;
+import org.ieumai.ieumai_backend.config.security.CustomBasicAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,6 +20,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -35,13 +37,30 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final CustomBasicAuthenticationEntryPoint customBasicAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .exceptionHandling(exceptions -> exceptions
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        // Swagger UI는 Basic 인증, 나머지는 JWT 인증
+                        .defaultAuthenticationEntryPointFor(
+                                customBasicAuthenticationEntryPoint,
+                                new AntPathRequestMatcher("/swagger-ui/**")
+                        )
+                        .defaultAuthenticationEntryPointFor(
+                                customBasicAuthenticationEntryPoint,
+                                new AntPathRequestMatcher("/v3/api-docs/**")
+                        )
+                        .defaultAuthenticationEntryPointFor(
+                                customBasicAuthenticationEntryPoint,
+                                new AntPathRequestMatcher("/swagger-resources/**")
+                        )
+                        .defaultAuthenticationEntryPointFor(
+                                jwtAuthenticationEntryPoint,
+                                AnyRequestMatcher.INSTANCE
+                        )
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
@@ -70,7 +89,10 @@ public class SecurityConfig {
                 )
                 // JWT 필터 등록 (UsernamePasswordAuthenticationFilter 이전에)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(Customizer.withDefaults()); // Swagger UI용 HTTP Basic 인증 유지
+                // HTTP Basic 인증 설정
+                .httpBasic(basic -> basic
+                        .authenticationEntryPoint(customBasicAuthenticationEntryPoint)
+                );
 
         http.headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.sameOrigin())
