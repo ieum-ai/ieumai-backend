@@ -35,7 +35,7 @@ fi
 
 # 3. 실행할 JAR 찾기
 echo "[3/3] Finding and executing the built artifact (JAR file)..."
-JAR_FILE=$(ls -t ${ARTIFACT_DIR}/*.jar | head -n 1)
+JAR_FILE=$(ls -t ${ARTIFACT_DIR}/*.jar | grep -v 'plain' | head -n 1)
 
 if [ -z "${JAR_FILE}" ]; then
   echo "Error: Could not find a JAR file in the ${ARTIFACT_DIR} directory."
