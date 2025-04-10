@@ -24,16 +24,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
 
-        // ✨ Swagger 관련 요청은 JWT 인증 스킵
-        if (isSwaggerRequest(requestURI)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        // Swagger UI 관련 요청에는 JWT 필터를 적용하지 않음
+        return requestURI.contains("/swagger-ui") ||
+                requestURI.contains("/v3/api-docs") ||
+                requestURI.contains("/swagger-resources");
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         String jwt = resolveToken(request);
 
@@ -62,12 +64,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
-    }
-
-    // Swagger 요청인지 판단하는 메소드
-    private boolean isSwaggerRequest(String uri) {
-        return uri.startsWith("/swagger-ui")
-                || uri.startsWith("/v3/api-docs")
-                || uri.startsWith("/swagger-resources");
     }
 }
