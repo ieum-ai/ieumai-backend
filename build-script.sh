@@ -24,9 +24,8 @@ else
 fi
 
 # 1. Git Pull
-echo "[1/3] Pulling latest code from Git repository (${BRANCH_NAME} branch)..."
-git pull origin ${BRANCH_NAME}
-
+echo "[1/3] Pulling latest code from Git repository (${BRANCH_NAME} branch)..."}
+git pull origin ${BRANCH_NAME} || true
 # 2. Gradle Build
 echo "[2/3] Building the project using Gradle..."
 
