@@ -24,6 +24,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");  // 명시적으로 UTF-8 인코딩 설정
 
         CommonResponse<Void> errorResponse = new CommonResponse<>("인증이 필요합니다. 유효한 JWT 토큰이 필요합니다.");
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

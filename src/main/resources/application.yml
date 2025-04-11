@@ -51,3 +51,9 @@ swagger:
   auth:
     username: admin
     password: ${SWAGGER_PASSWORD:default-password-for-development-only}
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
