@@ -25,12 +25,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-
-        // Swagger UI 관련 요청에는 JWT 필터를 적용하지 않음
-        return requestURI.contains("/swagger-ui") ||
-                requestURI.contains("/v3/api-docs") ||
-                requestURI.contains("/swagger-resources");
+        String path = request.getRequestURI();
+        return path.startsWith("/swagger-ui/") ||
+                path.startsWith("/v3/api-docs/") ||
+                path.startsWith("/swagger-resources/") ||
+                path.equals("/") ||
+                path.startsWith("/auth/") ||
+                path.startsWith("/regions/") ||
+                path.startsWith("/contributors/count") ||
+                path.startsWith("/db/") ||
+                path.startsWith("/voice/") ||
+                path.equals("/favicon.ico") ||
+                path.startsWith("/error") ||
+                path.startsWith("/actuator/health");
     }
 
     @Override
